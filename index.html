@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html lang="tr" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JARVIS - Personal AI Command Center</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Font Inter & Orbitron for Futuristic Vibe -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@400;600;800;900&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        jarvis: {
+                            bg: '#040914',
+                            card: 'rgba(10, 22, 40, 0.65)',
+                            border: 'rgba(0, 240, 255, 0.25)',
+                            cyan: '#00f0ff',
+                            blue: '#0066ff',
+                            glow: '#00f0ff33',
+                            accent: '#38bdf8'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        orbitron: ['Orbitron', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Custom scrollbars and futuristic glow effects */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(4, 9, 20, 0.8);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(0, 240, 255, 0.3);
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 240, 255, 0.6);
+        }
+
+        .glass-card {
+            background: rgba(8, 19, 38, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(0, 240, 255, 0.18);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37), inset 0 0 15px rgba(0, 240, 255, 0.05);
+        }
+
+        .glass-card-hover {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .glass-card-hover:hover {
+            border-color: rgba(0, 240, 255, 0.5);
+            box-shadow: 0 0 25px rgba(0, 240, 255, 0.25), inset 0 0 20px rgba(0, 240, 255, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .text-glow {
+            text-shadow: 0 0 10px rgba(0, 240, 255, 0.6), 0 0 20px rgba(0, 240, 255, 0.3);
+        }
+
+        .box-glow {
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.3);
+        }
+
+        .grid-bg {
+            background-image: linear-gradient(to right, rgba(0, 240, 255, 0.03) 1px, transparent 1px),
+                              linear-gradient(to bottom, rgba(0, 240, 255, 0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+
+        /* Pulse Animations for JARVIS Indicator */
+        @keyframes radar-spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .animate-radar {
+            animation: radar-spin 10s linear infinite;
+        }
+    </style>
+</head>
+
+<body class="bg-jarvis-bg text-slate-100 font-sans min-h-screen overflow-x-hidden grid-bg relative selection:bg-jarvis-cyan selection:text-black">
+
+    <!-- Ambient Holographic Background Glows -->
+    <div class="fixed top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-jarvis-cyan/10 rounded-full blur-[140px] pointer-events-none z-0"></div>
+    <div class="fixed bottom-10 right-10 w-[400px] h-[400px] bg-jarvis-blue/10 rounded-full blur-[120px] pointer-events-none z-0"></div>
+
+    <!-- Main Container -->
+    <div class="relative z-10 flex flex-col md:flex-row h-screen max-h-screen overflow-hidden">
+
+        <!-- LEFT SIDEBAR -->
+        <aside class="w-full md:w-64 glass-card border-r border-jarvis-border/40 flex flex-col justify-between shrink-0 z-20">
+            <div>
+                <!-- Brand Header -->
+                <div class="p-5 border-b border-jarvis-border/30 flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 rounded-lg bg-cyan-950/80 border border-jarvis-cyan flex items-center justify-center text-jarvis-cyan shadow-[0_0_15px_rgba(0,240,255,0.4)]">
+                            <i class="fa-solid fa-microchip text-xl animate-pulse"></i>
+                        </div>
+                        <div>
+                            <h1 class="font-orbitron font-bold text-lg tracking-wider text-white text-glow">J.A.R.V.I.S</h1>
+                            <p class="text-[10px] text-jarvis-cyan/70 tracking-widest uppercase">System v4.2 • Active</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Navigation Links -->
+                <nav class="p-4 space-y-2">
+                    <button onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-item w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 bg-jarvis-cyan/10 text-jarvis-cyan border border-jarvis-cyan/30 shadow-[0_0_10px_rgba(0,240,255,0.15)]">
+                        <i class="fa-solid fa-chart-pie w-5"></i>
+                        <span>Komut Merkezi</span>
+                    </button>
+                    <button onclick="switchTab('homework')" id="nav-homework" class="nav-item w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-400 hover:text-jarvis-cyan hover:bg-jarvis-cyan/5 transition-all duration-200 border border-transparent">
+                        <i class="fa-solid fa-book-bookmark w-5"></i>
+                        <span>Ödevlerim & Görevler</span>
+                        <span id="badge-homework" class="ml-auto bg-cyan-500/20 text-cyan-300 text-xs px-2 py-0.5 rounded-full border border-cyan-500/30">3</span>
+                    </button>
+                    <button onclick="switchTab('solver')" id="nav-solver" class="nav-item w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-400 hover:text-jarvis-cyan hover:bg-jarvis-cyan/5 transition-all duration-200 border border-transparent">
+                        <i class="fa-solid fa-wand-magic-sparkles w-5"></i>
+                        <span>Ödev Çözücü AI</span>
+                    </button>
+                    <button onclick="switchTab('messages')" id="nav-messages" class="nav-item w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-400 hover:text-jarvis-cyan hover:bg-jarvis-cyan/5 transition-all duration-200 border border-transparent">
+                        <i class="fa-solid fa-envelope w-5"></i>
+                        <span>Mesajlar & Bildirimler</span>
+                        <span id="badge-messages" class="ml-auto bg-blue-500/20 text-blue-300 text-xs px-2 py-0.5 rounded-full border border-blue-500/30">2</span>
+                    </button>
+                    <button onclick="switchTab('schedule')" id="nav-schedule" class="nav-item w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-400 hover:text-jarvis-cyan hover:bg-jarvis-cyan/5 transition-all duration-200 border border-transparent">
+                        <i class="fa-solid fa-calendar-check w-5"></i>
+                        <span>Ders Programı</span>
+                    </button>
+                    <button onclick="switchTab('settings')" id="nav-settings" class="nav-item w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-400 hover:text-jarvis-cyan hover:bg-jarvis-cyan/5 transition-all duration-200 border border-transparent">
+                        <i class="fa-solid fa-sliders w-5"></i>
+                        <span>Sistem Ayarları</span>
+                    </button>
+                </nav>
+            </div>
+
+            <!-- User Profile Quick Bar -->
+            <div class="p-4 border-t border-jarvis-border/30 bg-black/20">
+                <div class="flex items-center space-x-3">
+                    <div class="w-9 h-9 rounded-full bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center font-bold text-black font-orbitron shadow-[0_0_10px_rgba(0,240,255,0.5)]">
+                        D
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p id="user-name-sidebar" class="text-sm font-semibold text-white truncate">Dostum</p>
+                        <p class="text-xs text-slate-400 truncate">Öğrenci Profili</p>
+                    </div>
+                    <div class="w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_8px_#34d399]"></div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT AREA -->
+        <main class="flex-1 flex flex-col min-w-0 overflow-y-auto p-4 md:p-6 space-y-6">
+
+            <!-- TOP CARDS (Live Metrics) -->
+            <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <!-- Card 1: Time & Date -->
+                <div class="glass-card glass-card-hover p-4 rounded-2xl flex items-center space-x-4 border-l-4 border-l-jarvis-cyan">
+                    <div class="p-3 bg-jarvis-cyan/10 rounded-xl text-jarvis-cyan text-xl border border-jarvis-cyan/20">
+                        <i class="fa-regular fa-clock"></i>
+                    </div>
+                    <div>
+                        <div id="live-time" class="font-orbitron text-xl font-bold text-white tracking-wider text-glow">00:00:00</div>
+                        <div id="live-date" class="text-xs text-slate-400 mt-0.5">Yükleniyor...</div>
+                    </div>
+                </div>
+
+                <!-- Card 2: Live Weather -->
+                <div class="glass-card glass-card-hover p-4 rounded-2xl flex items-center justify-between border-l-4 border-l-sky-400">
+                    <div class="flex items-center space-x-3">
+                        <div class="p-3 bg-sky-500/10 rounded-xl text-sky-400 text-xl border border-sky-500/20">
+                            <i id="weather-icon" class="fa-solid fa-cloud-sun"></i>
+                        </div>
+                        <div>
+                            <div id="weather-temp" class="font-orbitron text-lg font-bold text-white">21°C</div>
+                            <div id="weather-desc" class="text-xs text-slate-400">İstanbul, Parçalı Bulutlu</div>
+                        </div>
+                    </div>
+                    <button onclick="updateWeather()" title="Hava Durumunu Yenile" class="text-slate-400 hover:text-sky-300 transition-colors p-1.5">
+                        <i class="fa-solid fa-arrows-rotate text-xs"></i>
+                    </button>
+                </div>
+
+                <!-- Card 3: Unread Messages -->
+                <div class="glass-card glass-card-hover p-4 rounded-2xl flex items-center space-x-4 border-l-4 border-l-blue-500 cursor-pointer" onclick="switchTab('messages')">
+                    <div class="p-3 bg-blue-500/10 rounded-xl text-blue-400 text-xl border border-blue-500/20">
+                        <i class="fa-regular fa-paper-plane"></i>
+                    </div>
+                    <div>
+                        <div id="card-message-count" class="font-orbitron text-xl font-bold text-white">2 Okunmamış</div>
+                        <div class="text-xs text-slate-400 mt-0.5">Son mesaj: Okul Grupları</div>
+                    </div>
+                </div>
+
+                <!-- Card 4: Active Homework -->
+                <div class="glass-card glass-card-hover p-4 rounded-2xl flex items-center space-x-4 border-l-4 border-l-amber-400 cursor-pointer" onclick="switchTab('homework')">
+                    <div class="p-3 bg-amber-500/10 rounded-xl text-amber-400 text-xl border border-amber-500/20">
+                        <i class="fa-solid fa-list-check"></i>
+                    </div>
+                    <div>
+                        <div id="card-homework-count" class="font-orbitron text-xl font-bold text-white">3 Bekleyen</div>
+                        <div class="text-xs text-slate-400 mt-0.5">En Yakın: Matematik (Yarın)</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 1: DASHBOARD (HOME) -->
+            <div id="tab-dashboard" class="tab-content flex-1 flex flex-col space-y-6">
+                
+                <!-- CENTER PIECE: Holographic JARVIS Orb Command Center -->
+                <div class="glass-card rounded-3xl p-6 relative overflow-hidden flex flex-col items-center justify-center min-h-[360px] md:min-h-[420px] border border-jarvis-border/40">
+                    
+                    <!-- Background Radar Ring Effect -->
+                    <div class="absolute w-[320px] h-[320px] md:w-[420px] md:h-[420px] rounded-full border border-jarvis-cyan/10 animate-radar pointer-events-none"></div>
+                    <div class="absolute w-[220px] h-[220px] md:w-[280px] md:h-[280px] rounded-full border border-dashed border-jarvis-cyan/20 pointer-events-none"></div>
+                    
+                    <!-- Voice Visualizer Status Badge -->
+                    <div class="absolute top-4 left-4 md:top-6 md:left-6 flex items-center space-x-2 bg-black/40 px-3 py-1.5 rounded-full border border-jarvis-border/50 text-xs">
+                        <span id="jarvis-status-dot" class="w-2.5 h-2.5 rounded-full bg-jarvis-cyan animate-pulse"></span>
+                        <span id="jarvis-status-text" class="font-orbitron tracking-widest text-jarvis-cyan font-semibold uppercase text-[11px]">IDLE - BEKLEMEDE</span>
+                    </div>
+
+                    <!-- Voice Briefing Action Button Top Right -->
+                    <button onclick="triggerVoiceBriefing()" class="absolute top-4 right-4 md:top-6 md:right-6 bg-jarvis-cyan/10 hover:bg-jarvis-cyan/20 text-jarvis-cyan border border-jarvis-cyan/40 px-3.5 py-1.5 rounded-full text-xs font-medium flex items-center space-x-2 transition-all shadow-[0_0_10px_rgba(0,240,255,0.2)]">
+                        <i class="fa-solid fa-volume-high"></i>
+                        <span>Günün Özeti</span>
+                    </button>
+
+                    <!-- CANVAS JARVIS ORB -->
+                    <div class="relative cursor-pointer group my-4" onclick="toggleSpeechRecognition()" title="Tıkla ve Konuş">
+                        <canvas id="jarvisOrbCanvas" width="280" height="280" class="rounded-full drop-shadow-[0_0_35px_rgba(0,240,255,0.4)]"></canvas>
+                        
+                        <!-- Center Icon overlay for orb -->
+                        <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                            <i id="orb-center-icon" class="fa-solid fa-microphone text-2xl text-jarvis-cyan opacity-80 group-hover:scale-125 transition-transform duration-300"></i>
+                        </div>
+                    </div>
+
+                    <!-- JARVIS Speech Output Bubble / Dynamic Subtitles -->
+                    <div class="w-full max-w-2xl text-center space-y-2 mt-2 px-4">
+                        <p id="jarvis-speech-subtitle" class="text-sm md:text-base text-slate-200 font-medium italic min-h-[48px] flex items-center justify-center px-4 py-2 rounded-2xl bg-black/30 border border-jarvis-border/20">
+                            "Merhaba Dostum! Ben JARVIS. Mikrofon düğmesine basarak veya Orb'a tıklayarak benimle konuşabilirsin."
+                        </p>
+                    </div>
+
+                    <!-- Quick Voice Prompt Chips -->
+                    <div class="flex flex-wrap justify-center gap-2 mt-4">
+                        <button onclick="handleVoiceCommand('Bana genel özet geç dostum')" class="text-xs bg-slate-900/60 hover:bg-jarvis-cyan/10 text-slate-300 hover:text-jarvis-cyan px-3 py-1.5 rounded-full border border-slate-700/60 hover:border-jarvis-cyan/40 transition-all">
+                            💬 "Bana özet geç dostum"
+                        </button>
+                        <button onclick="handleVoiceCommand('Bugün hava nasıl?')" class="text-xs bg-slate-900/60 hover:bg-jarvis-cyan/10 text-slate-300 hover:text-jarvis-cyan px-3 py-1.5 rounded-full border border-slate-700/60 hover:border-jarvis-cyan/40 transition-all">
+                            🌤️ "Hava nasıl?"
+                        </button>
+                        <button onclick="handleVoiceCommand('Ödevlerimi oku')" class="text-xs bg-slate-900/60 hover:bg-jarvis-cyan/10 text-slate-300 hover:text-jarvis-cyan px-3 py-1.5 rounded-full border border-slate-700/60 hover:border-jarvis-cyan/40 transition-all">
+                            📚 "Ödevlerimi listele"
+                        </button>
+                        <button onclick="handleVoiceCommand('Yeni mesajım var mı?')" class="text-xs bg-slate-900/60 hover:bg-jarvis-cyan/10 text-slate-300 hover:text-jarvis-cyan px-3 py-1.5 rounded-full border border-slate-700/60 hover:border-jarvis-cyan/40 transition-all">
+                            📩 "Mesajım var mı?"
+                        </button>
+                    </div>
+                </div>
+
+                <!-- SECONDARY PANELS: Quick Homework Overview & Quick Notes -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Quick Homework Widget -->
+                    <div class="glass-card rounded-2xl p-5 border border-jarvis-border/30">
+                        <div class="flex items-center justify-between mb-4">
+                            <h2 class="font-orbitron font-semibold text-sm tracking-wide text-white flex items-center space-x-2">
+                                <i class="fa-solid fa-clock-rotate-left text-jarvis-cyan"></i>
+                                <span>Yaklaşan Ödevler</span>
+                            </h2>
+                            <button onclick="switchTab('homework')" class="text-xs text-jarvis-cyan hover:underline">Tümünü Gör</button>
+                        </div>
+                        <div id="dashboard-homework-list" class="space-y-2.5">
+                            <!-- Dynamic Content -->
+                        </div>
+                    </div>
+
+                    <!-- Quick Activity & System Logs -->
+                    <div class="glass-card rounded-2xl p-5 border border-jarvis-border/30">
+                        <div class="flex items-center justify-between mb-4">
+                            <h2 class="font-orbitron font-semibold text-sm tracking-wide text-white flex items-center space-x-2">
+                                <i class="fa-solid fa-terminal text-jarvis-cyan"></i>
+                                <span>Son Sistem Etkinlikleri</span>
+                            </h2>
+                            <span class="text-[10px] text-emerald-400 font-mono">LIVE FEED</span>
+                        </div>
+                        <div id="system-activity-logs" class="space-y-2 font-mono text-xs text-slate-300 max-h-[180px] overflow-y-auto pr-1">
+                            <!-- Dynamic Logs -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 2: HOMEWORK & TASKS -->
+            <div id="tab-homework" class="tab-content hidden flex-1 flex-col space-y-6">
+                <div class="glass-card rounded-2xl p-6 border border-jarvis-border/30">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                        <div>
+                            <h2 class="font-orbitron text-xl font-bold text-white text-glow">Ödevlerim & Görev Takibi</h2>
+                            <p class="text-xs text-slate-400">Derslerinize ait aktif ödevleri ve teslim tarihlerini buradan yönetin.</p>
+                        </div>
+                        <button onclick="openAddHomeworkModal()" class="bg-jarvis-cyan hover:bg-cyan-400 text-black font-semibold px-4 py-2.5 rounded-xl text-sm flex items-center space-x-2 shadow-[0_0_15px_rgba(0,240,255,0.4)] transition-all">
+                            <i class="fa-solid fa-plus"></i>
+                            <span>Yeni Ödev Ekle</span>
+                        </button>
+                    </div>
+
+                    <!-- Filter Tabs -->
+                    <div class="flex items-center space-x-2 mb-4 border-b border-slate-800 pb-3">
+                        <button onclick="filterHomework('all')" id="filter-all" class="text-xs px-3 py-1.5 rounded-lg bg-jarvis-cyan/20 text-jarvis-cyan border border-jarvis-cyan/40">Tümü</button>
+                        <button onclick="filterHomework('pending')" id="filter-pending" class="text-xs px-3 py-1.5 rounded-lg text-slate-400 hover:text-white">Bekleyenler</button>
+                        <button onclick="filterHomework('completed')" id="filter-completed" class="text-xs px-3 py-1.5 rounded-lg text-slate-400 hover:text-white">Tamamlananlar</button>
+                    </div>
+
+                    <!-- Homework List -->
+                    <div id="full-homework-list" class="space-y-3">
+                        <!-- Dynamic homework elements rendered here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 3: HOMEWORK SOLVER AI -->
+            <div id="tab-solver" class="tab-content hidden flex-1 flex-col space-y-6">
+                <div class="glass-card rounded-2xl p-6 border border-jarvis-border/30 flex flex-col h-full">
+                    <div class="mb-4">
+                        <h2 class="font-orbitron text-xl font-bold text-white text-glow flex items-center space-x-2">
+                            <i class="fa-solid fa-wand-magic-sparkles text-jarvis-cyan"></i>
+                            <span>Ödev Çözücü & Yapıcı AI</span>
+                        </h2>
+                        <p class="text-xs text-slate-400">Sorunuzu veya ödev konusunu yazın, JARVIS adım adım çözüm ve detaylı açıklama hazırlasın.</p>
+                    </div>
+
+                    <!-- Solver Input Area -->
+                    <div class="space-y-3">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <input type="text" id="solver-subject" placeholder="Ders Adı (Örn: Matematik, Fizik, Tarih)" class="bg-black/50 border border-jarvis-border/40 rounded-xl px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-jarvis-cyan">
+                            <select id="solver-type" class="bg-black/50 border border-jarvis-border/40 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-jarvis-cyan">
+                                <option value="solution">Soru Çözümü & Açıklama</option>
+                                <option value="essay">Kompozisyon / Makale Taslağı</option>
+                                <option value="summary">Konu Özeti Çıkarma</option>
+                                <option value="translation">İngilizce Çeviri & Analiz</option>
+                            </select>
+                        </div>
+                        <textarea id="solver-question" rows="4" placeholder="Soru metnini veya ödev detaylarını buraya yapıştırın veya yazın..." class="w-full bg-black/50 border border-jarvis-border/40 rounded-xl p-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-jarvis-cyan"></textarea>
+                        
+                        <div class="flex justify-between items-center">
+                            <button onclick="startVoiceInputForSolver()" class="text-xs text-jarvis-cyan hover:underline flex items-center space-x-1">
+                                <i class="fa-solid fa-microphone"></i>
+                                <span>Sesle Soru Oku</span>
+                            </button>
+                            <button onclick="solveHomework()" class="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-black font-bold px-6 py-2.5 rounded-xl text-sm flex items-center space-x-2 shadow-[0_0_20px_rgba(0,240,255,0.4)] transition-all">
+                                <i class="fa-solid fa-bolt"></i>
+                                <span>JARVIS İle Çöz</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Solver Result Output Box -->
+                    <div id="solver-result-container" class="mt-6 flex-1 bg-black/40 border border-jarvis-border/30 rounded-2xl p-5 overflow-y-auto hidden">
+                        <div class="flex items-center justify-between mb-3 border-b border-slate-800 pb-2">
+                            <span class="text-xs font-orbitron text-jarvis-cyan font-semibold flex items-center space-x-2">
+                                <i class="fa-solid fa-robot"></i>
+                                <span>JARVIS ÇÖZÜMÜ</span>
+                            </span>
+                            <div class="flex items-center space-x-2">
+                                <button onclick="readSolverResult()" class="text-xs bg-jarvis-cyan/10 hover:bg-jarvis-cyan/20 text-jarvis-cyan px-2.5 py-1 rounded-lg border border-jarvis-cyan/30">
+                                    <i class="fa-solid fa-volume-high"></i> Sesli Oku
+                                </button>
+                                <button onclick="saveSolverToHomework()" class="text-xs bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 px-2.5 py-1 rounded-lg border border-emerald-500/30">
+                                    <i class="fa-solid fa-bookmark"></i> Ödevlere Kaydet
+                                </button>
+                            </div>
+                        </div>
+                        <div id="solver-result-text" class="text-sm text-slate-200 leading-relaxed whitespace-pre-wrap font-sans">
+                            <!-- AI Solution Response rendered here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 4: MESSAGES & NOTIFICATIONS -->
+            <div id="tab-messages" class="tab-content hidden flex-1 flex-col space-y-6">
+                <div class="glass-card rounded-2xl p-6 border border-jarvis-border/30">
+                    <div class="flex items-center justify-between mb-6">
+                        <div>
+                            <h2 class="font-orbitron text-xl font-bold text-white text-glow">Mesajlar & Bildirimler</h2>
+                            <p class="text-xs text-slate-400">Gelen mesajlarınızı takip edin ve JARVIS'e sesli okutun.</p>
+                        </div>
+                        <button onclick="simulateNewMessage()" class="text-xs bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 border border-blue-500/40 px-3 py-2 rounded-xl">
+                            <i class="fa-solid fa-plus"></i> Test Mesajı Gönder
+                        </button>
+                    </div>
+
+                    <div id="messages-container-list" class="space-y-3">
+                        <!-- Dynamic Messages -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 5: CLASS SCHEDULE -->
+            <div id="tab-schedule" class="tab-content hidden flex-1 flex-col space-y-6">
+                <div class="glass-card rounded-2xl p-6 border border-jarvis-border/30">
+                    <h2 class="font-orbitron text-xl font-bold text-white text-glow mb-4">Haftalık Ders Programı</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-5 gap-3">
+                        <div class="bg-black/40 border border-jarvis-border/20 p-3 rounded-xl">
+                            <h3 class="font-orbitron text-xs font-semibold text-jarvis-cyan border-b border-slate-800 pb-2 mb-2">PAZARTESİ</h3>
+                            <ul class="text-xs space-y-2 text-slate-300">
+                                <li class="p-2 bg-slate-900/60 rounded border border-slate-800">09:00 - Matematik</li>
+                                <li class="p-2 bg-slate-900/60 rounded border border-slate-800">11:00 - Fizik</li>
+                                <li class="p-2 bg-slate-900/60 rounded border border-slate-800">14:00 - İngilizce</li>
+                            </ul>
+                        </div>
+                        <div class="bg-black/40 border border-jarvis-border/20 p-3 rounded-xl">
+                            <h3 class="font-orbitron text-xs font-semibold text-jarvis-cyan border-b border-slate-800 pb-2 mb-2">SALI</h3>
+                            <ul class="text-xs space-y-2 text-slate-300">
+                                <li class="p-2 bg-slate-900/60 rounded border border-slate-800">09:00 - Kimya</li>
+                                <li class="p-2 bg-slate-900/60 rounded border border-slate-800">11:00 - Biyoloji</li>
+                                <li class="p-2 bg-slate-900/60 rounded border border-slate-800">13:30 - Edebiyat</li>
+                            </ul>
+                        </div>
+                        <div class="bg-black/40 border border-jarvis-border/20 p-3 rounded-xl">
+                            <h3 class="font-orbitron text-xs font-semibold text-jarvis-cyan border-b border-slate-800 pb-2 mb-2">ÇARŞAMBA</h3>
+                            <ul class="text-xs space-y-2 text-slate-300">
+                                <li class="p-2 bg-slate-900/60 rounded border border-slate-800">10:00 - Tarih</li>
+                                <li class="p-2 bg-slate-900/60 rounded border border-slate-800">13:00 - Coğrafya</li>
+                            </ul>
+                        </div>
+                        <div class="bg-black/40 border border-jarvis-border/20 p-3 rounded-xl">
+                            <h3 class="font-orbitron text-xs font-semibold text-jarvis-cyan border-b border-slate-800 pb-2 mb-2">PERŞEMBE</h3>
+                            <ul class="text-xs space-y-2 text-slate-300">
+                                <li class="p-2 bg-slate-900/60 rounded border border-slate-800">09:00 - Matematik</li>
+                                <li class="p-2 bg-slate-900/60 rounded border border-slate-800">11:00 - Geometri</li>
+                                <li class="p-2 bg-slate-900/60 rounded border border-slate-800">14:00 - Felsefe</li>
+                            </ul>
+                        </div>
+                        <div class="bg-black/40 border border-jarvis-border/20 p-3 rounded-xl">
+                            <h3 class="font-orbitron text-xs font-semibold text-jarvis-cyan border-b border-slate-800 pb-2 mb-2">CUMA</h3>
+                            <ul class="text-xs space-y-2 text-slate-300">
+                                <li class="p-2 bg-slate-900/60 rounded border border-slate-800">09:00 - Fizik Lab</li>
+                                <li class="p-2 bg-slate-900/60 rounded border border-slate-800">11:30 - Bilgisayar</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 6: SETTINGS -->
+            <div id="tab-settings" class="tab-content hidden flex-1 flex-col space-y-6">
+                <div class="glass-card rounded-2xl p-6 border border-jarvis-border/30 max-w-2xl">
+                    <h2 class="font-orbitron text-xl font-bold text-white text-glow mb-6">JARVIS Sistem Ayarları</h2>
+                    
+                    <div class="space-y-5">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-2">Kullanıcı Hitap İsmi</label>
+                            <input type="text" id="setting-user-name" value="Dostum" class="w-full bg-black/50 border border-jarvis-border/40 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-jarvis-cyan">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-2">Şehir (Hava Durumu İçin)</label>
+                            <input type="text" id="setting-city" value="İstanbul" class="w-full bg-black/50 border border-jarvis-border/40 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-jarvis-cyan">
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-300 mb-2">Konuşma Hızı (TTS)</label>
+                                <input type="range" id="setting-voice-rate" min="0.7" max="1.3" step="0.1" value="1.0" class="w-full accent-jarvis-cyan">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-300 mb-2">Ses Tonu (Pitch)</label>
+                                <input type="range" id="setting-voice-pitch" min="0.8" max="1.2" step="0.1" value="0.9" class="w-full accent-jarvis-cyan">
+                            </div>
+                        </div>
+
+                        <button onclick="saveSettings()" class="bg-jarvis-cyan text-black font-bold px-5 py-2.5 rounded-xl text-sm shadow-[0_0_15px_rgba(0,240,255,0.3)]">
+                            Ayarları Kaydet
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- MODAL: ADD HOMEWORK -->
+    <div id="modal-add-homework" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="glass-card rounded-2xl p-6 w-full max-w-md border border-jarvis-cyan/40">
+            <h3 class="font-orbitron font-bold text-lg text-white mb-4">Yeni Ödev Ekle</h3>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs text-slate-300 mb-1">Ders Adı</label>
+                    <input type="text" id="new-hw-subject" placeholder="Örn: Matematik" class="w-full bg-black/50 border border-jarvis-border/40 rounded-xl p-2.5 text-sm text-white">
+                </div>
+                <div>
+                    <label class="block text-xs text-slate-300 mb-1">Ödev Başlığı / Tanım</label>
+                    <input type="text" id="new-hw-title" placeholder="Örn: Türev Soruları Sayfa 42" class="w-full bg-black/50 border border-jarvis-border/40 rounded-xl p-2.5 text-sm text-white">
+                </div>
+                <div>
+                    <label class="block text-xs text-slate-300 mb-1">Son Teslim Tarihi</label>
+                    <input type="date" id="new-hw-date" class="w-full bg-black/50 border border-jarvis-border/40 rounded-xl p-2.5 text-sm text-white">
+                </div>
+            </div>
+            <div class="flex justify-end space-x-3 mt-6">
+                <button onclick="closeAddHomeworkModal()" class="px-4 py-2 text-xs text-slate-400 hover:text-white">İptal</button>
+                <button onclick="submitNewHomework()" class="bg-jarvis-cyan text-black font-semibold px-4 py-2 rounded-xl text-xs">Ekle</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /* Global Application State */
+        const state = {
+            user: {
+                name: "Dostum",
+                city: "İstanbul"
+            },
+            status: "IDLE", // IDLE, LISTENING, THINKING, SPEAKING
+            homeworks: [
+                { id: 1, subject: "Matematik", title: "Türev & İntegral test çözümü", dueDate: "Yarın", completed: false },
+                { id: 2, subject: "Fizik", title: "Vektörler ve Hareket Deneyi Raporu", dueDate: "3 Gün Sonra", completed: false },
+                { id: 3, subject: "İngilizce", title: "Essay: Future of AI in Education", dueDate: "5 Gün Sonra", completed: false }
+            ],
+            messages: [
+                { id: 1, sender: "Ahmet Hoca (Matematik)", text: "Dostum, dünkü derste bahsettiğim ödev tarihini yarına çektim, bilgin olsun.", time: "10:30", unread: true },
+                { id: 2, sender: "Sınıf Whatsapp Grubu", text: "Fizik sunumu için slaytları hazırlayan var mı?", time: "09:15", unread: true }
+            ],
+            logs: [],
+            speechSynth: window.speechSynthesis,
+            recognition: null,
+            currentAudioFreq: 0
+        };
+
+        const canvas = document.getElementById('jarvisOrbCanvas');
+        const ctx = canvas.getContext('2d');
+        let orbRotation = 0;
+
+        function drawOrb() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const baseRadius = 75;
+
+            orbRotation += 0.015;
+
+            // Dynamic Orb scale depending on status
+            let pulseScale = Math.sin(Date.now() * 0.003) * 3;
+            if (state.status === "LISTENING") pulseScale = Math.sin(Date.now() * 0.01) * 8 + state.currentAudioFreq;
+            if (state.status === "THINKING") pulseScale = Math.sin(Date.now() * 0.02) * 12;
+            if (state.status === "SPEAKING") pulseScale = Math.sin(Date.now() * 0.015) * 14;
+
+            const radius = baseRadius + pulseScale;
+
+            // 1. Outer Glow Aura
+            const glowGradient = ctx.createRadialGradient(centerX, centerY, radius * 0.5, centerX, centerY, radius * 1.5);
+            let glowColor = "rgba(0, 240, 255, ";
+            if (state.status === "LISTENING") glowColor = "rgba(52, 211, 153, ";
+            if (state.status === "THINKING") glowColor = "rgba(251, 191, 36, ";
+            if (state.status === "SPEAKING") glowColor = "rgba(56, 189, 248, ";
+
+            glowGradient.addColorStop(0, glowColor + "0.6)");
+            glowGradient.addColorStop(0.7, glowColor + "0.15)");
+            glowGradient.addColorStop(1, "transparent");
+
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius * 1.5, 0, Math.PI * 2);
+            ctx.fillStyle = glowGradient;
+            ctx.fill();
+
+            // 2. Rotating Inner Geometric Tech Rings
+            ctx.save();
+            ctx.translate(centerX, centerY);
+            ctx.rotate(orbRotation);
+
+            // Ring 1
+            ctx.beginPath();
+            ctx.arc(0, 0, radius + 15, 0, Math.PI * 1.4);
+            ctx.strokeStyle = state.status === "THINKING" ? "#fbbf24" : "#00f0ff";
+            ctx.lineWidth = 2;
+            ctx.shadowBlur = 10;
+            ctx.shadowColor = "#00f0ff";
+            ctx.stroke();
+
+            // Ring 2 (Counter rotating)
+            ctx.rotate(-orbRotation * 2.2);
+            ctx.beginPath();
+            ctx.arc(0, 0, radius + 25, 0, Math.PI * 0.8);
+            ctx.strokeStyle = "rgba(0, 102, 255, 0.7)";
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+
+            ctx.restore();
+
+            // 3. Central Core Sphere Gradient
+            const coreGradient = ctx.createRadialGradient(centerX - 15, centerY - 15, 5, centerX, centerY, radius);
+            coreGradient.addColorStop(0, "#ffffff");
+            coreGradient.addColorStop(0.4, "#00f0ff");
+            coreGradient.addColorStop(0.8, "#0044aa");
+            coreGradient.addColorStop(1, "#040914");
+
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+            ctx.fillStyle = coreGradient;
+            ctx.shadowBlur = 20;
+            ctx.shadowColor = "#00f0ff";
+            ctx.fill();
+
+            requestAnimationFrame(drawOrb);
+        }
+
+        function initSpeech() {
+            // Speech Recognition Setup
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (SpeechRecognition) {
+                state.recognition = new SpeechRecognition();
+                state.recognition.lang = 'tr-TR';
+                state.recognition.continuous = false;
+                state.recognition.interimResults = false;
+
+                state.recognition.onstart = function() {
+                    setJarvisStatus("LISTENING", "SİZİ DİNLİYOR...");
+                    document.getElementById('orb-center-icon').className = "fa-solid fa-microphone-lines text-2xl text-emerald-400 animate-bounce";
+                    addLog("Mikrofon aktif. Türkçe ses dinleniyor.");
+                };
+
+                state.recognition.onresult = function(event) {
+                    const transcript = event.results[0][0].transcript;
+                    addLog("Ses Algılandı: '" + transcript + "'");
+                    handleVoiceCommand(transcript);
+                };
+
+                state.recognition.onerror = function(event) {
+                    addLog("Ses tanıma hatası: " + event.error);
+                    speakText("Üzgünüm Dostum, sesini tam olarak anlayamadım.");
+                    setJarvisStatus("IDLE", "IDLE - BEKLEMEDE");
+                };
+
+                state.recognition.onend = function() {
+                    if (state.status === "LISTENING") {
+                        setJarvisStatus("IDLE", "IDLE - BEKLEMEDE");
+                    }
+                };
+            } else {
+                addLog("Tarayıcı SpeechRecognition desteklemiyor.");
+            }
+        }
+
+        function toggleSpeechRecognition() {
+            if (!state.recognition) {
+                alert("Tarayıcınız Türkçe Ses Algılama API'sini desteklememektedir. Google Chrome önerilir.");
+                return;
+            }
+            if (state.status === "LISTENING") {
+                state.recognition.stop();
+                setJarvisStatus("IDLE", "IDLE - BEKLEMEDE");
+            } else {
+                state.recognition.start();
+            }
+        }
+
+        function speakText(text, callback) {
+            if (!state.speechSynth) return;
+
+            // Cancel any ongoing speech
+            state.speechSynth.cancel();
+
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'tr-TR';
+            utterance.rate = parseFloat(document.getElementById('setting-voice-rate').value || 1.0);
+            utterance.pitch = parseFloat(document.getElementById('setting-voice-pitch').value || 0.9);
+
+            // Update UI Subtitle
+            document.getElementById('jarvis-speech-subtitle').innerText = `"${text}"`;
+
+            utterance.onstart = function() {
+                setJarvisStatus("SPEAKING", "JARVIS KONUŞUYOR...");
+                document.getElementById('orb-center-icon').className = "fa-solid fa-volume-high text-2xl text-cyan-300 animate-pulse";
+            };
+
+            utterance.onend = function() {
+                setJarvisStatus("IDLE", "IDLE - BEKLEMEDE");
+                document.getElementById('orb-center-icon').className = "fa-solid fa-microphone text-2xl text-jarvis-cyan";
+                if (callback) callback();
+            };
+
+            state.speechSynth.speak(utterance);
+        }
+
+        function handleVoiceCommand(cmd) {
+            setJarvisStatus("THINKING", "DÜŞÜNÜYOR...");
+            document.getElementById('orb-center-icon').className = "fa-solid fa-brain text-2xl text-amber-400 animate-spin";
+
+            const lowerCmd = cmd.toLowerCase();
+
+            setTimeout(() => {
+                if (lowerCmd.includes("özet") || lowerCmd.includes("neler var") || lowerCmd.includes("bugün ne yap") || lowerCmd.includes("durum ne")) {
+                    triggerVoiceBriefing();
+                } else if (lowerCmd.includes("hava") || lowerCmd.includes("derece")) {
+                    speakText(`Dostum, şu an İstanbul'da hava parçalı bulutlu ve sıcaklık 21 derece. Tam öğrenim havası!`);
+                } else if (lowerCmd.includes("ödev") || lowerCmd.includes("görev")) {
+                    const pendingCount = state.homeworks.filter(h => !h.completed).length;
+                    speakText(`Dostum, şu anda teslim etmen gereken toplam ${pendingCount} adet aktif ödevin bulunuyor. En yakını Matematik dersinden.`);
+                    switchTab('homework');
+                } else if (lowerCmd.includes("mesaj") || lowerCmd.includes("bildirim")) {
+                    const unreadCount = state.messages.filter(m => m.unread).length;
+                    speakText(`Dostum, okunmamış ${unreadCount} yeni mesajın var. Ahmet hocandan gelen mesajı okumamı ister misin?`);
+                    switchTab('messages');
+                } else if (lowerCmd.includes("saat") || lowerCmd.includes("zaman")) {
+                    const now = new Date();
+                    const timeStr = now.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+                    speakText(`Saat şu an tam olarak ${timeStr}, Dostum.`);
+                } else {
+                    speakText(`Anlaşıldı Dostum. "${cmd}" konusu ile ilgili veritabanını taradım ve gerekli bilgiyi kaydettim.`);
+                }
+            }, 800);
+        }
+
+        function triggerVoiceBriefing() {
+            const now = new Date();
+            const dateStr = now.toLocaleDateString('tr-TR', { weekday: 'long', day: 'numeric', month: 'long' });
+            const pendingHW = state.homeworks.filter(h => !h.completed).length;
+            const unreadMsg = state.messages.filter(m => m.unread).length;
+
+            const briefingText = `Merhaba Dostum! Bugün ${dateStr}. İstanbul'da hava 21 derece parçalı bulutlu. Şu an yapılması gereken ${pendingHW} adet ödevin ve ${unreadMsg} okunmamış mesajın bulunuyor. Sistemlerin hepsi sorunsuz çalışıyor.`;
+            speakText(briefingText);
+        }
+
+        function solveHomework() {
+            const subject = document.getElementById('solver-subject').value || "Genel Ders";
+            const question = document.getElementById('solver-question').value;
+
+            if (!question.trim()) {
+                alert("Lütfen bir soru veya ödev konusu giriniz.");
+                return;
+            }
+
+            setJarvisStatus("THINKING", "ÇÖZÜM ÜRETİLİYOR...");
+            
+            setTimeout(() => {
+                let solutionText = `[JARVIS AI ÇÖZÜMÜ - ${subject.toUpperCase()}]\n\n`;
+                solutionText += `Soru/Konu: "${question}"\n\n`;
+                solutionText += `ADIM 1: Konu Analizi & Temel İpuçları\n`;
+                solutionText += `Bu ${subject} sorusunda temel mantık verilen parametrelerin adım adım yerine konulmasıdır.\n\n`;
+                solutionText += `ADIM 2: Detaylı Çözüm ve Açıklama\n`;
+                solutionText += `• Verilen ifadeler sadeleştirildi.\n• İlgili formüller uygulandı.\n• Doğru mantıksal sonuca ulaşıldı.\n\n`;
+                solutionText += `SONUÇ: İlgili problemin çözümü başarıyla tamamlandı, Dostum! Herhangi bir ek sorunda buradayım.`;
+
+                document.getElementById('solver-result-text').innerText = solutionText;
+                document.getElementById('solver-result-container').classList.remove('hidden');
+
+                setJarvisStatus("IDLE", "IDLE - BEKLEMEDE");
+                addLog(`AI Ödev Çözücü çalıştırıldı: ${subject}`);
+            }, 1200);
+        }
+
+        function readSolverResult() {
+            const text = document.getElementById('solver-result-text').innerText;
+            speakText(text);
+        }
+
+        function saveSolverToHomework() {
+            const subject = document.getElementById('solver-subject').value || "AI Ödev";
+            const newHw = {
+                id: Date.now(),
+                subject: subject,
+                title: "AI Çözülen Ödev: " + (document.getElementById('solver-question').value.substring(0, 30) + "..."),
+                dueDate: "Tamamlandı",
+                completed: true
+            };
+            state.homeworks.unshift(newHw);
+            renderHomeworks();
+            alert("Ödev başarıyla listene eklendi Dostum!");
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(`tab-${tabName}`).classList.remove('hidden');
+
+            document.querySelectorAll('.nav-item').forEach(el => {
+                el.className = "nav-item w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-400 hover:text-jarvis-cyan hover:bg-jarvis-cyan/5 transition-all duration-200 border border-transparent";
+            });
+
+            const activeBtn = document.getElementById(`nav-${tabName}`);
+            if (activeBtn) {
+                activeBtn.className = "nav-item w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 bg-jarvis-cyan/10 text-jarvis-cyan border border-jarvis-cyan/30 shadow-[0_0_10px_rgba(0,240,255,0.15)]";
+            }
+        }
+
+        function renderHomeworks(filter = 'all') {
+            const dashboardList = document.getElementById('dashboard-homework-list');
+            const fullList = document.getElementById('full-homework-list');
+
+            dashboardList.innerHTML = '';
+            fullList.innerHTML = '';
+
+            const filteredHW = state.homeworks.filter(h => {
+                if (filter === 'pending') return !h.completed;
+                if (filter === 'completed') return h.completed;
+                return true;
+            });
+
+            // Update badge counts
+            const pendingCount = state.homeworks.filter(h => !h.completed).length;
+            document.getElementById('badge-homework').innerText = pendingCount;
+            document.getElementById('card-homework-count').innerText = `${pendingCount} Bekleyen`;
+
+            // Render Dashboard top 3
+            state.homeworks.slice(0, 3).forEach(hw => {
+                const itemHtml = `
+                    <div class="flex items-center justify-between p-2.5 rounded-xl bg-black/30 border border-slate-800 hover:border-jarvis-border/40 transition-all">
+                        <div class="flex items-center space-x-3">
+                            <input type="checkbox" ${hw.completed ? 'checked' : ''} onchange="toggleHomework(${hw.id})" class="accent-jarvis-cyan rounded cursor-pointer">
+                            <div>
+                                <p class="text-xs font-semibold ${hw.completed ? 'line-through text-slate-500' : 'text-slate-200'}">${hw.title}</p>
+                                <span class="text-[10px] text-jarvis-cyan">${hw.subject}</span>
+                            </div>
+                        </div>
+                        <span class="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded-full">${hw.dueDate}</span>
+                    </div>
+                `;
+                dashboardList.innerHTML += itemHtml;
+            });
+
+            // Render Full List
+            filteredHW.forEach(hw => {
+                const itemHtml = `
+                    <div class="flex items-center justify-between p-4 rounded-xl glass-card border border-jarvis-border/20">
+                        <div class="flex items-center space-x-4">
+                            <input type="checkbox" ${hw.completed ? 'checked' : ''} onchange="toggleHomework(${hw.id})" class="w-4 h-4 accent-jarvis-cyan rounded cursor-pointer">
+                            <div>
+                                <h4 class="text-sm font-semibold ${hw.completed ? 'line-through text-slate-500' : 'text-white'}">${hw.title}</h4>
+                                <div class="flex items-center space-x-3 mt-1">
+                                    <span class="text-xs text-jarvis-cyan font-medium">${hw.subject}</span>
+                                    <span class="text-xs text-slate-400">• Son Teslim: ${hw.dueDate}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <button onclick="deleteHomework(${hw.id})" class="text-slate-500 hover:text-rose-400 text-sm">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+                fullList.innerHTML += itemHtml;
+            });
+        }
+
+        function toggleHomework(id) {
+            const hw = state.homeworks.find(h => h.id === id);
+            if (hw) {
+                hw.completed = !hw.completed;
+                renderHomeworks();
+                addLog(`Ödev durumu değiştirildi: ${hw.title}`);
+            }
+        }
+
+        function deleteHomework(id) {
+            state.homeworks = state.homeworks.filter(h => h.id !== id);
+            renderHomeworks();
+        }
+
+        function renderMessages() {
+            const list = document.getElementById('messages-container-list');
+            list.innerHTML = '';
+
+            const unreadCount = state.messages.filter(m => m.unread).length;
+            document.getElementById('badge-messages').innerText = unreadCount;
+            document.getElementById('card-message-count').innerText = `${unreadCount} Okunmamış`;
+
+            state.messages.forEach(msg => {
+                const html = `
+                    <div class="p-4 rounded-xl glass-card border ${msg.unread ? 'border-blue-500/40 bg-blue-950/10' : 'border-jarvis-border/20'} flex items-start justify-between">
+                        <div class="flex items-start space-x-3">
+                            <div class="p-2.5 bg-blue-500/10 rounded-xl text-blue-400 text-lg">
+                                <i class="fa-solid fa-envelope-open"></i>
+                            </div>
+                            <div>
+                                <div class="flex items-center space-x-2">
+                                    <h4 class="text-sm font-bold text-white">${msg.sender}</h4>
+                                    <span class="text-[10px] text-slate-400">${msg.time}</span>
+                                </div>
+                                <p class="text-xs text-slate-300 mt-1">${msg.text}</p>
+                            </div>
+                        </div>
+                        <button onclick="readMessageAloud('${msg.text}')" class="text-xs bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 px-3 py-1.5 rounded-lg border border-blue-500/30">
+                            <i class="fa-solid fa-volume-high"></i> Oku
+                        </button>
+                    </div>
+                `;
+                list.innerHTML += html;
+            });
+        }
+
+        function readMessageAloud(text) {
+            speakText(`Dostum, gelen mesaj şöyle: ${text}`);
+        }
+
+        function simulateNewMessage() {
+            const newMsg = {
+                id: Date.now(),
+                sender: "Fizik Öğretmeni",
+                text: "Dostum yarınki laboratuvar dersine önlüklerinizle gelmeyi unutmayın.",
+                time: "Şimdi",
+                unread: true
+            };
+            state.messages.unshift(newMsg);
+            renderMessages();
+            speakText("Dostum! Fizik öğretmeninden yeni bir mesajın var.");
+        }
+
+        function updateLiveTime() {
+            const now = new Date();
+            document.getElementById('live-time').innerText = now.toLocaleTimeString('tr-TR');
+            document.getElementById('live-date').innerText = now.toLocaleDateString('tr-TR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+        }
+
+        function setJarvisStatus(status, labelText) {
+            state.status = status;
+            document.getElementById('jarvis-status-text').innerText = labelText;
+
+            const dot = document.getElementById('jarvis-status-dot');
+            if (status === "LISTENING") dot.className = "w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping";
+            else if (status === "THINKING") dot.className = "w-2.5 h-2.5 rounded-full bg-amber-400 animate-spin";
+            else if (status === "SPEAKING") dot.className = "w-2.5 h-2.5 rounded-full bg-sky-400 animate-pulse";
+            else dot.className = "w-2.5 h-2.5 rounded-full bg-jarvis-cyan animate-pulse";
+        }
+
+        function addLog(text) {
+            const logBox = document.getElementById('system-activity-logs');
+            const now = new Date().toLocaleTimeString('tr-TR');
+            const logEntry = document.createElement('div');
+            logEntry.className = "flex items-center space-x-2 text-slate-300";
+            logEntry.innerHTML = `<span class="text-jarvis-cyan">[${now}]</span> <span>${text}</span>`;
+            logBox.prepend(logEntry);
+        }
+
+        function saveSettings() {
+            state.user.name = document.getElementById('setting-user-name').value || "Dostum";
+            state.user.city = document.getElementById('setting-city').value || "İstanbul";
+            document.getElementById('user-name-sidebar').innerText = state.user.name;
+            speakText(`Ayarların güncellendi ${state.user.name}.`);
+        }
+
+        function openAddHomeworkModal() { document.getElementById('modal-add-homework').classList.remove('hidden'); }
+        function closeAddHomeworkModal() { document.getElementById('modal-add-homework').classList.add('hidden'); }
+
+        function submitNewHomework() {
+            const subject = document.getElementById('new-hw-subject').value;
+            const title = document.getElementById('new-hw-title').value;
+            const date = document.getElementById('new-hw-date').value || "Belirtilmedi";
+
+            if (!subject || !title) {
+                alert("Lütfen ders adı ve ödev başlığını doldurun.");
+                return;
+            }
+
+            state.homeworks.unshift({
+                id: Date.now(),
+                subject: subject,
+                title: title,
+                dueDate: date,
+                completed: false
+            });
+
+            renderHomeworks();
+            closeAddHomeworkModal();
+            speakText(`Harika Dostum! ${subject} dersi için yeni ödevini kaydettim.`);
+        }
+
+        window.onload = function() {
+            drawOrb();
+            initSpeech();
+            setInterval(updateLiveTime, 1000);
+            updateLiveTime();
+            renderHomeworks();
+            renderMessages();
+            addLog("JARVIS Çekirdek Sistemleri Başlatıldı.");
+            addLog("Kullanıcı Profili Yüklendi: 'Dostum'");
+        };
+    </script>
+</body>
+</html>
